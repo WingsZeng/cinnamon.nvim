@@ -123,7 +123,6 @@ H.scroller = {
         self.current_position = self.original_position
         self.initial_changedtick = vim.b.changedtick
         self.interrupted = false
-        self.previous_step_position = nil
         self.previous_step_tick = utils.uv.hrtime() -- ns
         self.step_queue = {
             line = 0,
@@ -161,10 +160,6 @@ H.scroller = {
             or (self.window_id ~= vim.api.nvim_get_current_win())
             or (self.buffer_id ~= vim.api.nvim_get_current_buf())
             or (self.initial_changedtick ~= vim.b.changedtick)
-            or (
-                self.previous_step_position ~= nil
-                and not H.positions_equal(H.get_position(self.window_id), self.previous_step_position)
-            )
         then
             self:stop()
             self.locked = false
@@ -215,8 +210,6 @@ H.scroller = {
 
         self.step_queue.winline = self.step_queue.winline - winline_step
         self.error.winline = self.error.winline - winline_step
-
-        self.previous_step_position = H.get_position(self.window_id)
 
         if
             math.abs(self.error.line) < 1
